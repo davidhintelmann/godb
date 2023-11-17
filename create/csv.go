@@ -11,6 +11,7 @@ import (
 
 func GenerateRandomData(numRows, numColumns int) [][]string {
 	var wg sync.WaitGroup
+	var m sync.Mutex
 	wg.Add(numRows)
 	// Seed the random number generator
 	rand.NewSource(42)
@@ -26,14 +27,17 @@ func GenerateRandomData(numRows, numColumns int) [][]string {
 	// Generate random data
 	var data [][]string
 	for i := 0; i < numRows; i++ {
-		var row []string
+		// var row []string
 		go func(numColumns int) {
 			defer wg.Done()
+			var row []string
 			for j := 0; j < numColumns; j++ {
 				// row = append(row, strconv.Itoa(rand.Intn(100)+1))
 				row = append(row, strconv.FormatFloat(rand.Float64()*100, 'f', 14, 64))
 			}
+			m.Lock()
 			data = append(data, row)
+			m.Unlock()
 		}(numColumns)
 	}
 	wg.Wait()
