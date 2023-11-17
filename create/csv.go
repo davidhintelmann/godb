@@ -75,16 +75,15 @@ func WriteToCSVByRow(filename string, data [][]string) error {
 }
 
 func WriteAllToCSV(filename string, data [][]string) error {
-	file, err1 := os.Create(filename)
-	if err1 != nil {
-		return err1
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
 	}
 	defer file.Close()
 
 	writer := csv.NewWriter(file)
-	err2 := writer.WriteAll(data)
-	if err2 != nil {
-		return err2
+	if err := writer.WriteAll(data); err != nil {
+		return err
 	}
 
 	return nil
