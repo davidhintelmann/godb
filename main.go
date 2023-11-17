@@ -18,17 +18,17 @@ func main() {
 	data := create.GenerateRandomData(numRows, numColumns)
 	end_data := time.Now()
 	duration_data := end_data.Sub(start_data)
-	fmt.Printf("Duration of create.GenerateTandomData(): %v\n", duration_data)
+	fmt.Printf("Duration of create.GenerateRandomData(): %v\n", duration_data)
 
 	start_write := time.Now()
 	csvFilename := "sample.csv"
-	if err := create.WriteToCSV(csvFilename, data); err != nil {
+	if err := create.WriteToCSVByRow(csvFilename, data); err != nil {
 		fmt.Println("Error writing to CSV:", err)
 		return
 	}
 	end_write := time.Now()
 	duration_write := end_write.Sub(start_write)
-	fmt.Printf("Duration of create.WriteToCSV(): %v\n", duration_write)
+	fmt.Printf("Duration of create.WriteToCSVByRow(): %v\n", duration_write)
 
 	fmt.Printf("Data written to %s\n", csvFilename)
 }

@@ -5,10 +5,13 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"sync"
 	// "strings"
 )
 
 func GenerateRandomData(numRows, numColumns int) [][]string {
+	var wg sync.WaitGroup
+	wg.Add(numRows)
 	// Seed the random number generator
 	rand.NewSource(42)
 
@@ -24,12 +27,16 @@ func GenerateRandomData(numRows, numColumns int) [][]string {
 	var data [][]string
 	for i := 0; i < numRows; i++ {
 		var row []string
-		for j := 0; j < numColumns; j++ {
-			// row = append(row, strconv.Itoa(rand.Intn(100)+1))
-			row = append(row, strconv.FormatFloat(rand.Float64()*100, 'f', 14, 64))
-		}
-		data = append(data, row)
+		go func(numColumns int) {
+			defer wg.Done()
+			for j := 0; j < numColumns; j++ {
+				// row = append(row, strconv.Itoa(rand.Intn(100)+1))
+				row = append(row, strconv.FormatFloat(rand.Float64()*100, 'f', 14, 64))
+			}
+			data = append(data, row)
+		}(numColumns)
 	}
+	wg.Wait()
 
 	data = append([][]string{columns}, data...) // Add column headers as the first row
 	return data
@@ -44,7 +51,7 @@ func GenerateRandomData(numRows, numColumns int) [][]string {
 // 	return result.String()
 // }
 
-func WriteToCSV(filename string, data [][]string) error {
+func WriteToCSVByRow(filename string, data [][]string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -58,6 +65,22 @@ func WriteToCSV(filename string, data [][]string) error {
 		if err := writer.Write(row); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func WriteAllToCSV(filename string, data [][]string) error {
+	file, err1 := os.Create(filename)
+	if err1 != nil {
+		return err1
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	err2 := writer.WriteAll(data)
+	if err2 != nil {
+		return err2
 	}
 
 	return nil
